@@ -1,0 +1,142 @@
+generator client {
+  provider = "prisma-client"
+  output = "../prisma/generated"
+  moduleFormat = "cjs"
+  generatedFileExtension = "ts"
+  importFileExtension = ""
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model User {
+  id                  String   @id @default(cuid())
+  username            String   @unique
+  email               String   @unique
+  password            String
+  roles               Role[]
+  isMfaEnabled        Boolean  @default(false)
+  hashedRefreshToken  String?
+  emailVerified       Boolean  @default(false)
+  lastLoginAt         DateTime?
+  createdAt           DateTime @default(now())
+  updatedAt           DateTime @updatedAt
+  sessions            Session[]
+  accounts            Account[]
+  @@map("users")
+}
+
+model Product {
+
+  id              String           @id @default(cuid())
+
+  name            String
+
+  details         ProductDetails?
+
+  createdAt       DateTime         @default(now())
+
+  updatedAt       DateTime         @updatedAt
+
+  @@map("products")
+}
+
+model ProductDetails {
+
+  id              String              @id @default(cuid())
+
+  productId       String              @unique
+
+  product         Product             @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  altId           String?
+
+  category        ProductCategory
+
+  image           String?
+
+  availability    Int                 @default(0)
+
+  @@index([category])
+
+  @@map("product_details")
+}
+
+model Session {
+
+  id              String      @id @default(cuid())
+
+  userId          String
+
+  user            User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  type            SessionType
+
+  expiresAt       DateTime
+
+  createdAt       DateTime    @default(now())
+
+  @@index([userId])
+
+  @@map("sessions")
+}
+
+model Account {
+  id                    String @id @default(cuid())
+  accountId             String
+  providerId            String
+
+  userId                String @unique
+  user                  User  @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  accessToken           String?
+  refreshToken          String?
+  accessTokenExpiresAt  DateTime?
+  refreshTokenExpiresAt DateTime?
+
+  password              String?
+
+  createdAt             DateTime @default(now())
+  updatedAt             DateTime @updatedAt
+
+  @@map("accounts")
+}
+
+model Verification {
+  id         String   @id @default(cuid())
+
+  identifier String
+
+  value      String
+
+  expiresAt  DateTime
+
+  createdAt  DateTime @default(now())
+
+  updatedAt  DateTime @updatedAt
+
+  @@map("verifications")
+}
+
+enum ProductCategory {
+  ELECTRICS
+  CLOTHING
+  APPLIANCES
+  GROCERIES
+  BOOKS
+}
+
+enum Role {
+  GUEST
+  VIEWER
+  USER
+  MODERATOR
+  EDITOR
+  ADMIN
+}
+
+enum SessionType {
+  COOKIE
+  BEARER
+}

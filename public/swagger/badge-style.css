@@ -1,0 +1,37 @@
+.limit-badge {
+  background-color: #10b981;
+  color: white;
+  padding: 2px 8px;
+  border-radius: 12px;
+  font-size: 11px;
+  font-weight: 600;
+  margin-left: auto;
+  transition: background-color 0.3s ease;
+}
+.limit-low { background-color: #f59e0b; }
+.limit-empty { background-color: #ef4444; }
+
+.route-badge { 
+    background-color: #e2e8f0; 
+    color: #1e293b; 
+    padding: 2px 6px; 
+    border-radius: 4px; 
+    font-size: 10px; 
+    font-weight: bold;
+    margin-left: auto; /* Pushes the badge to the right side of the row */
+    text-transform: uppercase;
+  }
+.badge-restricted { background-color: #ef4444; color: white; }
+.badge-standard { background-color: #10b981; color: white; }
+
+.custom-badge {
+  display: inline-block;
+  background-color: #007acc;
+  color: white;
+  padding: 4px 8px;
+  font-size: 12px;
+  font-weight: bold;
+  border-radius: 4px;
+  margin-left: 10px;
+  vertical-align: middle;
+}
