@@ -18,7 +18,7 @@ export function createRoleRequirement(
 
   const options = isOptionsObject ? second : third;
 
-  const mode = options?.roleMode ?? 'ascending';
+  const mode = options?.roleMode ?? 'atMost';
 
   RoleUtil.validateRange(first, max);
 

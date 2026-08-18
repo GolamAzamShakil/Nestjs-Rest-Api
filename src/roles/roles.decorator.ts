@@ -25,7 +25,7 @@ export function Roles(
 }
 
 /* export function Roles(role: Role, options: RolesOptions = {}) {
-  const mode = options.mode ?? 'ascending';
+  const mode = options.mode ?? 'atMost'; 
   const requirement: RoleRequirement = {
     min: role,
     mode,

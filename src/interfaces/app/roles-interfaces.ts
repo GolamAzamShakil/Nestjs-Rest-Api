@@ -1,6 +1,6 @@
 import { Role } from '../entities/user';
 
-export type RoleMode = 'ascending' | 'descending' | 'exact';
+export type RoleMode = 'atMost' | 'atLeast' | 'exact';
 
 export interface RolesOptions {
   roleMode?: RoleMode;

@@ -11,7 +11,7 @@ export class RolesService {
   resolveRequirement(requirement: RoleRequirement): Role[] {
     return RoleUtil.resolve(
       requirement.role,
-      requirement.mode ?? 'ascending',
+      requirement.mode ?? 'atMost',
       requirement.max,
     );
   }

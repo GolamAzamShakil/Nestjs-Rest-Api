@@ -37,8 +37,8 @@ export class RoleUtil {
    * based on hierarchy
    */
 
-  // ascending('editor') → gues, viewer, user, moderator, editor
-  static ascending(role: Role): Role[] {
+  // atMost('editor') → gues, viewer, user, moderator, editor
+  static atMost(role: Role): Role[] {
     this.validateRole(role);
 
     const level = this.level(role);
@@ -46,8 +46,8 @@ export class RoleUtil {
     return ROLE_HIERARCHY.slice(0, level + 1);
   }
 
-  // descending('editor') → editor, admin
-  static descending(role: Role): Role[] {
+  // atLeast('editor') → editor, admin
+  static atLeast(role: Role): Role[] {
     this.validateRole(role);
 
     const level = this.level(role);
@@ -99,14 +99,14 @@ export class RoleUtil {
     return ROLE_HIERARCHY.slice(minLevel, maxLevel + 1);
   }
 
-  static resolve(role: Role, mode: RoleMode = 'ascending', max?: Role): Role[] {
+  static resolve(role: Role, mode: RoleMode = 'atMost', max?: Role): Role[] {
     const roleMode: string = mode;
     switch (mode) {
-      case 'ascending':
-        return max ? this.range(role, max) : this.ascending(role);
+      case 'atMost':
+        return max ? this.range(role, max) : this.atMost(role);
 
-      case 'descending':
-        return max ? this.range(role, max) : this.descending(role);
+      case 'atLeast':
+        return max ? this.range(role, max) : this.atLeast(role);
 
       case 'exact':
         this.validateRole(role);
@@ -117,7 +117,7 @@ export class RoleUtil {
     }
   }
 
-  static expandAscending(role: Role): Role[] {
+  static expandAtMost(role: Role): Role[] {
     const level = this.level(role);
 
     if (level === -1) {
@@ -127,7 +127,7 @@ export class RoleUtil {
     return ROLE_HIERARCHY.slice(0, level + 1);
   }
 
-  static expandDescending(role: Role): Role[] {
+  static expandAtLeast(role: Role): Role[] {
     const level = this.level(role);
 
     if (level === -1) {
@@ -183,7 +183,7 @@ export class RoleUtil {
       userRoles = ['guest'];
     }
 
-    const mode = requirement.mode ?? 'ascending';
+    const mode = requirement.mode ?? 'atMost';
 
     const allowedRoles = this.resolve(requirement.role, mode, requirement.max);
 

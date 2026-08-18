@@ -55,7 +55,7 @@ export class AuthController {
     authName: 'jwt-auth',
   })
   @AuthSecurity()
-  @Roles('user', 'editor', { roleMode: 'ascending' })
+  @Roles('user', 'editor', { roleMode: 'atMost' })
   @Get('profile')
   profile(
     @CurrentUser()
