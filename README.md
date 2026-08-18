@@ -35,14 +35,16 @@ A production-ready **NestJS REST API** starter/project featuring **Prisma ORM**,
 
 ```text
 src/
-├── account/
-│   ├── account.controller.ts
-│   ├── account.service.ts
-│   └── ...
+├── api/
+│   ├── api.controller.ts
+│   └── api.module.ts
 ├── auth/
 │   ├── guards/
 │   ├── strategies/
 │   ├── decorators/
+|   ├── controllers
+|   |   ├── account.controller.ts
+|   |   └── auth.controller.ts
 │   └── ...
 ├── prisma/
 │   ├── prisma.module.ts
@@ -51,8 +53,11 @@ src/
 │   ├── decorators/
 │   ├── guards/
 │   ├── interceptors/
-│   └── ...
+│   ├── services
+|   └── ...
+├── app.controller.ts
 ├── app.module.ts
+├── app.service.ts
 └── main.ts
 ```
 
@@ -70,21 +75,39 @@ cd <project-directory>
 ### 2. Install dependencies
 
 ```bash
-npm install
+pnpm install
 ```
 
 ### 3. Configure environment variables
 
-Create a `.env` file in the project root:
+Create a `.env.local` file in the project root:
 
 ```env
-DATABASE_URL="postgresql://..."
+NODE_ENV=local
 
-JWT_SECRET="your-jwt-secret"
-JWT_EXPIRES_IN="1d"
+APP_PORT=3000
 
-UPSTASH_REDIS_REST_URL="https://..."
-UPSTASH_REDIS_REST_TOKEN="..."
+JWT_SECRET=
+JWT_REFRESH_SECRET=
+JWT_ACCESS_EXPIRES=15m
+JWT_REFRESH_EXPIRES=7d
+
+COOKIE_DOMAIN=
+COOKIE_SECURE=false
+COOKIE_SAME_SITE=lax
+COOKIE_HTTP_ONLY=false
+COOKIE_MAX_AGE_ACCESS=900000
+COOKIE_MAX_AGE_REFRESH=604800000
+COOKIE_ACCESS_NAME=
+COOKIE_REFRESH_NAME=
+
+SWAGGER_ENABLED=true
+
+UPSTASH_REDIS_REST_URL=
+UPSTASH_REDIS_REST_TOKEN=
+
+DATABASE_URL='postgresql://...'
+DIRECT_URL='postgresql://...'
 ```
 
 > Never commit secrets or production credentials to the repository.
