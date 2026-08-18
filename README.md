@@ -115,13 +115,13 @@ DIRECT_URL='postgresql://...'
 ### 4. Generate Prisma Client
 
 ```bash
-npx prisma generate
+pnpx prisma generate
 ```
 
 ### 5. Run database migrations
 
 ```bash
-npx prisma migrate dev
+pnpx prisma migrate dev --name init
 ```
 
 ### 6. Start the application
@@ -129,14 +129,14 @@ npx prisma migrate dev
 Development:
 
 ```bash
-npm run start:dev
+pnpm run start:dev
 ```
 
 Production:
 
 ```bash
-npm run build
-npm run start:prod
+pnpm run build
+pnpm run start:prod
 ```
 
 ## 📚 API Documentation
@@ -205,7 +205,7 @@ Public endpoints can be accessed without authentication.
 Example:
 
 ```http
-GET /public
+GET /auth/status
 ```
 
 These routes are intended for resources that do not require an authenticated user.
@@ -360,8 +360,8 @@ npm run test:e2e
 | `POST` | `/account/signup`  | Public        |
 | `POST` | `/account/signin`  | Public        |
 | `POST` | `/account/signout` | Authenticated |
-| `GET`  | `/public`          | Public        |
-| `GET`  | `/protected`       | Authenticated |
+| `GET`  | `/auth/status`     | Public        |
+| `GET`  | `/auth/me`         | Authenticated |
 | `GET`  | `/api-docs`        | Documentation |
 
 > The endpoint list above is a high-level overview. See Swagger UI for the complete and current API specification.
