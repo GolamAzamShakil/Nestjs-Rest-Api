@@ -17,7 +17,7 @@ export class ApiController {
         url: this.configService.get<string>('UPSTASH_REDIS_REST_URL'),
         token: this.configService.get<string>('UPSTASH_REDIS_REST_TOKEN'),
       }),
-      limiter: Ratelimit.tokenBucket(3, '11 h', 1),
+      limiter: Ratelimit.tokenBucket(5, '2 h', 20),
     });
   }
 

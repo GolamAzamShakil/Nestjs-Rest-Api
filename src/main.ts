@@ -1,5 +1,6 @@
-/* eslint-disable @typescript-eslint/no-unsafe-assignment */
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import 'dotenv/config';
+import { CorsOptions } from '@nestjs/common/interfaces/external/cors-options.interface';
 import { ConfigService } from '@nestjs/config';
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
@@ -10,13 +11,47 @@ import cookieParser from 'cookie-parser';
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
   const configService = app.get(ConfigService);
-  const isLocal = configService.get('NODE_ENV') === 'local';
+  const nodeEnv = configService.get<string>('NODE_ENV');
+  //const isLocal = configService.get('NODE_ENV') === 'local';
   app.enableCors({
-    origin: isLocal ? configService.get('ALLOWED_ORIGINS') : '*',
+    /* origin: isLocal ? configService.get('ALLOWED_ORIGINS') : '*', */
+    origin: (
+      requestOrigin: string | undefined,
+      callback: (err: Error | null, allow?: boolean) => void,
+    ) => {
+      if (nodeEnv === 'local' || nodeEnv === 'development') {
+        // Allows all origins in local dev.
+        callback(null, true);
+        return;
+      }
+
+      const allowedOriginsRaw =
+        configService.get<string>('ALLOWED_ORIGINS') || '';
+      const allowedOrigins = allowedOriginsRaw
+        .split(',')
+        .map((origin) => origin.trim());
+
+      // Allow requests with no origin (like mobile apps, curl, or same-origin Swagger pages)
+      if (!requestOrigin) {
+        callback(null, true);
+        return;
+      }
+
+      // Check if the browser's requesting origin is in the whitelist
+      if (allowedOrigins.includes(requestOrigin)) {
+        callback(null, true);
+      } else {
+        callback(new Error('Not allowed by CORS'));
+      }
+    },
+    credentials: true,
     exposedHeaders: [
       'X-RateLimit-Limit',
       'X-RateLimit-Remaining',
       'X-RateLimit-Reset',
+      'x-ratelimit-limit',
+      'x-ratelimit-remaining',
+      'x-ratelimit-reset',
     ],
   });
   app.useGlobalPipes(
