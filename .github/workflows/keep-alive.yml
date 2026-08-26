@@ -1,0 +1,39 @@
+name: Resilient Keep Neon DB and Upstash Alive
+
+on:
+  schedule:
+    - cron: '0 0 */6 * *' # Every 6 days
+  workflow_dispatch:
+
+jobs:
+  keep-alive:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Try Web App Ping First
+        id: web_ping
+        continue-on-error: true # Prevents workflow failure if app is down
+        run: |
+          URL="https://live-production-api.com"
+          STATUS=$(curl -o /dev/null -s -w "%{http_code}" --max-time 15 "$URL")
+          if [ "$STATUS" -eq 200 ]; then
+            echo "SUCCESS: App is online. Neon and Upstash hit via HTTP."
+            echo "APP_ONLINE=true" >> $GITHUB_ENV
+          else
+            echo "WARNING: App is offline or returned status $STATUS."
+            echo "APP_ONLINE=false" >> $GITHUB_ENV
+          fi
+
+      - name: Backup Plan - Ping Neon DB Directly
+        if: env.APP_ONLINE == 'false'
+        run: |
+          echo "Connecting directly to Neon DB..."
+          # Uses standard psql client pre-installed on Ubuntu runners
+          psql "${{ secrets.DATABASE_URL }}" -c "SELECT 1;"
+
+      - name: Backup Plan - Ping Upstash Redis Directly
+        if: env.APP_ONLINE == 'false'
+        run: |
+          echo "Connecting directly to Upstash Redis REST API..."
+          # Increments a dummy cron heartbeat key to keep Upstash active
+          curl -X POST "${{ secrets.UPSTASH_REDIS_REST_URL }}/incr/cron_heartbeat" \
+            -H "Authorization: Bearer ${{ secrets.UPSTASH_REDIS_REST_TOKEN }}"

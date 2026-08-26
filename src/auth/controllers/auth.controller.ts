@@ -1,4 +1,12 @@
-import { Controller, Get, HttpStatus, UseGuards } from '@nestjs/common';
+/* eslint-disable @typescript-eslint/no-unsafe-member-access */
+/* eslint-disable @typescript-eslint/no-unsafe-assignment */
+import {
+  Controller,
+  Get,
+  HttpStatus,
+  InternalServerErrorException,
+  UseGuards,
+} from '@nestjs/common';
 import * as interfaces from 'src/common/interfaces/index';
 import {
   ApiBearerAuth,
@@ -16,6 +24,7 @@ import { UsersService } from 'src/users/users.service';
 import { SwaggerOptions } from 'src/common/decorators/swagger-options.decorator';
 import { AuthSecurity } from '../decorators/auth-security.decorator';
 import { CurrentUser } from 'src/common/decorators/current-user.decorator';
+import { PrismaService } from 'src/prisma/prisma.service';
 
 @ApiTags('Authentication')
 @UseGuards(UpstashRateLimiterGuard)
@@ -24,21 +33,34 @@ export class AuthController {
   constructor(
     private readonly auth: AuthService,
     private readonly users: UsersService,
+    private readonly prisma: PrismaService,
   ) {}
 
   @ApiOperation({
     summary: 'Public endpoint for auth status',
   })
-  @ApiResponse({
-    status: 200,
-  })
+  @ApiResponse({ status: 200, description: 'All systems operational' })
+  @ApiResponse({ status: 500, description: 'Service health check failed' })
   @Public()
   @Get('status')
-  status() {
-    return {
-      status: 'Auth controller is working fine',
-      timestamp: new Date(),
-    };
+  async status() {
+    try {
+      await this.prisma.$queryRaw`SELECT 1`;
+
+      return {
+        status: 'Services are active',
+        database: 'Connected',
+        timestamp: new Date(),
+      };
+    } catch (error: any) {
+      console.error('Keep-alive check failed:', error);
+
+      throw new InternalServerErrorException({
+        status: 'Service degradation detected',
+        error: error.message || 'Unknown database error',
+        timestamp: new Date(),
+      });
+    }
   }
 
   @SwaggerOptions({
