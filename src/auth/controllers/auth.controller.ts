@@ -27,7 +27,7 @@ export class AuthController {
   ) {}
 
   @ApiOperation({
-    summary: 'Public endpoint',
+    summary: 'Public endpoint for auth status',
   })
   @ApiResponse({
     status: 200,
