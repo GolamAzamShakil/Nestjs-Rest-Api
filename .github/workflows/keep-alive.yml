@@ -11,29 +11,34 @@ jobs:
     steps:
       - name: Try Web App Ping First
         id: web_ping
-        continue-on-error: true # Prevents workflow failure if app is down
+        # continue-on-error handles runner system level errors, but script level requires stabilization below
+        continue-on-error: true 
         run: |
           URL="https://live-production-api.com"
-          STATUS=$(curl -o /dev/null -s -w "%{http_code}" --max-time 15 "$URL")
+          
+          echo "Pinging $URL..."
+          # Adding '|| STATUS=0' guarantees that if curl fails to resolve, the script doesn't crash 
+          STATUS=$(curl -o /dev/null -s -w "%{http_code}" --max-time 15 "$URL" || echo "0")
+          
+          echo "HTTP Status Code obtained: $STATUS"
+          
           if [ "$STATUS" -eq 200 ]; then
             echo "SUCCESS: App is online. Neon and Upstash hit via HTTP."
             echo "APP_ONLINE=true" >> $GITHUB_ENV
           else
-            echo "WARNING: App is offline or returned status $STATUS."
+            echo "WARNING: App is offline or returned status $STATUS. Activating backup systems..."
             echo "APP_ONLINE=false" >> $GITHUB_ENV
           fi
 
       - name: Backup Plan - Ping Neon DB Directly
         if: env.APP_ONLINE == 'false'
         run: |
-          echo "Connecting directly to Neon DB..."
-          # Uses standard psql client pre-installed on Ubuntu runners
+          echo "Executing backup plan: Connecting directly to Neon DB..."
           psql "${{ secrets.DATABASE_URL }}" -c "SELECT 1;"
 
       - name: Backup Plan - Ping Upstash Redis Directly
         if: env.APP_ONLINE == 'false'
         run: |
-          echo "Connecting directly to Upstash Redis REST API..."
-          # Increments a dummy cron heartbeat key to keep Upstash active
+          echo "Executing backup plan: Connecting directly to Upstash Redis REST API..."
           curl -X POST "${{ secrets.UPSTASH_REDIS_REST_URL }}/incr/cron_heartbeat" \
             -H "Authorization: Bearer ${{ secrets.UPSTASH_REDIS_REST_TOKEN }}"
