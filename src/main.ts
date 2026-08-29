@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/no-unsafe-assignment */
+/* eslint-disable @typescript-eslint/no-unsafe-member-access */
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import 'dotenv/config';
 import { CorsOptions } from '@nestjs/common/interfaces/external/cors-options.interface';
@@ -106,6 +108,10 @@ async function bootstrap() {
     customCssUrl: '/static/swagger/badge-style.css',
     customJs: '/static/swagger/badge-script.js',
   });
+
+  const server = app.getHttpServer();
+  server.keepAliveTimeout = 120 * 1000;
+  server.headersTimeout = 120 * 1000;
 
   await app.listen(process.env.PORT ?? 3000);
 }
