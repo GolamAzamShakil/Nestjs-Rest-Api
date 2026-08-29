@@ -111,8 +111,9 @@ async function bootstrap() {
 
   const server = app.getHttpServer();
   server.keepAliveTimeout = 120 * 1000;
-  server.headersTimeout = 120 * 1000;
+  server.headersTimeout = 130 * 1000;
+  server.requestTimeout = 120 * 1000;
 
-  await app.listen(process.env.PORT ?? 3000);
+  await app.listen(process.env.PORT ?? 3000, '0.0.0.0');
 }
 bootstrap();
